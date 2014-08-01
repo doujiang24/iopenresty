@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+#root=$(readlink -f -- "$(dirname -- "$0")/..")
+root=`perl -MCwd -e'print Cwd::abs_path(shift)' $(dirname -- "$0")/..`
+
+info_txt=`perl -e 'print "\033[33m[INFO]\033[0m"'`
+
+echo -n "ngx_openresty "
+. ./util/ver
+echo
+
+name=ngx_openresty-$version
+work=$root/work
+
+rm -rf $name* || exit 1
+
+if [ ! -d $work ]; then
+    mkdir $work || exit 1
+fi
+
+#################################
+
+$root/util/get-tarball "http://openresty.org/download/$name.tar.gz" -O $name.tar.gz || exit 1
+tar -xzf $name.tar.gz || exit 1
+
+rm $name.tar.gz
+cd $name/bundle
+
+
+#################################
+
+ver=7
+$root/util/get-tarball "https://github.com/ittner/lua-iconv/archive/lua-iconv-$ver.tar.gz" -O "lua-iconv-$ver.tar.gz" || exit 1
+tar -xzf lua-iconv-$ver.tar.gz || exit 1
+mv lua-iconv-lua-iconv-$ver lua-iconv-$ver || exit 1
+
+
+#################################
+
+ver=0.05
+$root/util/get-tarball "https://github.com/doujiang24/lua-resty-http/tarball/v$ver" -O "lua-resty-http-$ver.tar.gz" || exit 1
+tar -xzf lua-resty-http-$ver.tar.gz || exit 1
+mv doujiang24-lua-resty-http-* lua-resty-http-$ver || exit 1
+
+
+#################################
+
+ver=0.01
+$root/util/get-tarball "https://github.com/doujiang24/lua-resty-ssdb/tarball/v$ver" -O "lua-resty-ssdb-$ver.tar.gz" || exit 1
+tar -xzf lua-resty-ssdb-$ver.tar.gz || exit 1
+mv doujiang24-lua-resty-ssdb-* lua-resty-ssdb-$ver || exit 1
+
+
+#################################
+
+
+
+rm *.tar.gz
+
+find . -name '*~' -delete
+
+cd $root
+
+tar cf $name.tar $name
+gzip -f --best $name.tar
+
