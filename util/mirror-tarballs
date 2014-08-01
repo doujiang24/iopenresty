@@ -61,6 +61,8 @@ find . -name '*~' -delete
 
 cd $root
 
+cp util/configure $name
+
 tar cf $name.tar $name
 gzip -f --best $name.tar
 
